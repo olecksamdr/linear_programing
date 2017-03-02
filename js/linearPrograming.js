@@ -44,15 +44,16 @@ function documentLoaded() {
 	let ctx = canvas.getContext('2d');
 
 	let graph = new CoordinateSystem({
-		ctx: ctx,
 		minX: -2,
 		maxX: 2,
 		minY: -2,
 		maxY: 4,
 		offset: 50,
-		color: '#000'
+		color: '#000',
+		width: canvas.innerWidth,
+		height: canvas.innerHeight
 	});
 
-	graph.draw();
+	graph.draw(ctx);
 }
 
