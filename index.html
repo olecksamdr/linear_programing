@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Linear programing</title>
+
+	<link rel="stylesheet" href="css/style.css">
+
+	<script src="js/linearPrograming.js"></script>
+	<script src="js/equationClass.js"></script>
+</head>
+<body>
+	<form if="myForm">
+		<label for="x1-inp">
+			<input type="text" id="x1-inp">
+			x1
+		</label>
+		<label for="x2-inp">
+			<input type="text" id="x2-inp">
+			x2
+		</label>
+		<label for="x0-inp">
+			<input type="text" id="x0-inp">
+			x0
+		</label>
+		<label for="operation-select">
+			<select name="operation" id="operation-select">
+				<option value="=">=</option>
+				<option value="<"><</option>
+				<option value=">">></option>
+				<option value="<="><=</option>
+				<option value=">=">>=</option>
+			</select>
+			operation
+		</label>
+		<label for="equals-inp">
+			<input type="text" id="equals-inp">
+			equals
+		</label>
+		<button id="add-equation">add</button>
+	</form>
+
+	<ul id="output"></ul>
+	
+	<canvas class="center" width="500" height="500" id="cnv">
+		
+	</canvas>
+</body>
+</html>
