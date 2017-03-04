@@ -297,6 +297,9 @@ class Arrow {
 
 class CoordinateSystem {
 	constructor(options) {
+
+		this.equations = [];
+
 		this.width = options.width;
 		this.height = options.height;
 		this.minX = options.minX || 0;
@@ -306,7 +309,7 @@ class CoordinateSystem {
 		this.offset = options.offset || 0;
 		this.ctx = options.ctx;
 
-		let trf = new Transform(this.ctx.canvas);
+		this.trf = new Transform(this.ctx.canvas);
 		// this.color = options.color || '#000';
 
 		let yPointCount = Math.abs(this.minY) + Math.abs(this.maxY) + 1;
@@ -341,7 +344,7 @@ class CoordinateSystem {
 			let y = this.offset + j * this.unitY;
 
 
-		this.zero = new Point(x, trf.y(y));
+		this.zero = new Point(x, this.trf.y(y));
 
 		console.log(this.offset, this.unitX, this.unitY, this.zero.x, this.zero.y, this.minX, this.maxX);
 
@@ -354,130 +357,32 @@ class CoordinateSystem {
 		});
 
 		this.yExis = new Exis({
-			start: new Point(this.zero.x, trf.y(this.offset)),
-			end: new Point(this.zero.x, trf.y(this.height - this.offset)),
+			start: new Point(this.zero.x, this.trf.y(this.offset)),
+			end: new Point(this.zero.x, this.trf.y(this.height - this.offset)),
 			minVal: this.minY,
 			maxVal: this.maxY,
 			type: 'y'
 		});
 
-		// this.width = this.ctx.canvas.clientWidth;
-		// this.height = this.ctx.canvas.clientHeight;
+		this.start = new Point(this.offset, this.height - this.offset);
+		this.end = new Point(this.width - this.offset, this.offset);
 
-		// // кількість поділок які треба поставити на вісі Х
-		// this.xExisPointsCount = Math.abs(this.minX) + Math.abs(this.maxX) + 1;
-		// this.yExisPointsCount = Math.abs(this.minY) + Math.abs(this.maxY) + 1;
+		console.log('graph start end', this.start, this.end);
+	}
 
-		// // відступи між поділками
-		// this.marginX = Math.floor( this.width / this.xExisPointsCount);
-		// this.marginY = Math.floor( this.height / this.yExisPointsCount);
+	pushEq(eq) {
+		this.equations.push(eq);
 
-
-		// //  шукаємо позицію нуля на канвасі
-		// let 
-		// 	x = this.offset + (Math.abs(this.minX) + Math.abs(this.maxX)) / 2 * this.marginX,
-		// 	y = this.offset + (Math.abs(this.minY) + Math.abs(this.maxY)) / 2 * this.marginY;
-
-
-		// this.zero = new Point(x, y);
-
-		// let 
-		// 	start = new Point(this.offset, this.zero.y),
-		// 	end = new Point(this.width - this.offset, this.offset);
-
-		// this.xExis = new Line(start, end);
-
-		// start = new Point(this.zero.x, this.offset),
-		// end = new Point(this.zero.x, this.height - this.offset);
-
-		// this.yExis = new Line(start, end);
+		// this.ctx.lineTo(100, 100);
+		eq.draw(this, this.ctx, this.unitX, this.unitY, this.trf);
+		console.log('drawing eq', eq);
 	}
 
 	draw(ctx) {
 		this.xExis.draw(ctx);
 		this.yExis.draw(ctx, 0);
-
-		// let cnvWidth = ctx.canvas.clientWidth;
-		// let cnvHeight = ctx.canvas.clientHeight;
-		// // // кількість поділок які треба поставити на вісі Х
-		// let xExisPointsCount = Math.abs(this.minX) + Math.abs(this.maxX) + 1;
-		// let yExisPointsCount = Math.abs(this.minY) + Math.abs(this.maxY) + 1;
-		// console.log(yExisPointsCount, Math.abs(this.minY), this.minY);
-
-		// let width = ctx.canvas.clientWidth;
-		// let height = ctx.canvas.clientHeight;
-
-		// let marginX = Math.floor( width / xExisPointsCount);
-		// let marginY = Math.floor( height / yExisPointsCount);
-
-		// // draw x exis
-		// ctx.save();
-
-		// // перевертаємо систему координат
-		// ctx.translate(0, cnvWidth);
-		// ctx.scale(1, -1);
-
-		// ctx.beginPath();
-
-		// // draw x exis
-		// ctx.moveTo(this.startXPos, this.startYPos);
-		// ctx.lineTo(this.width - this.offset, this.offset);
-		// ctx.stroke();
-
-		// new Arrow({
-		// 	startX: this.startXPos - 10,
-		// 	startY: this.offset,
-		// 	width: 20,
-		// 	height: 20,
-		// 	arcR: 10
-		// }).draw(ctx);
-
-		// // draw y exis
-		// ctx.moveTo(this.zero.x, this.offset);
-		// ctx.lineTo(this.zero.x, cnvHeight - this.offset);
-		// ctx.stroke();
-
-		// new Arrow({
-		// 	startX: this.zero.x - 10,
-		// 	startY: cnvHeight - this.offset,
-		// 	width: 20,
-		// 	height: 20,
-		// 	arcR: 10,
-		// 	rotateAngel: 90
-		// }).draw(ctx);
-
-		// ctx.closePath();
-		// ctx.restore();
-
-		// // малюємо поділки на осі X
-		// for(let i = 0; i < this.xExisPointsCount - 1; i++) {
-		// 	let margin = i * this.marginX;
-
-		// 	ctx.moveTo(this.offset + margin, cnvHeight - this.offset - 5);
-		// 	ctx.lineTo(this.offset + margin, cnvHeight - this.offset + 5);
-		// 	ctx.stroke();
-
-		// 	ctx.font = '16px arial';
-
-		// 	let 
-		// 		textWidth = ctx.measureText(this.minX + i).width,
-		// 		textHeight = parseInt(ctx.font);
-
-		// 	ctx.fillText(this.minX + i, this.offset + margin - 5,  cnvHeight - this.offset + textHeight + textHeight / 2);
-
-		// }
-
-		// // малюємо поділки на осі Y
-		// for(let i = 0; i <= this.yExisPointsCount; i++) {
-		// 	let margin = i * this.marginY;
-
-		// 	ctx.moveTo(this.offset - 5, this.offset + this.margin);
-		// 	ctx.lineTo(this.offset + 5, this.offset + this.margin);
-		// 	ctx.stroke();
-		// }
 	}
 
-	// _drawArrow() {}
 }
 /* harmony export (immutable) */ __webpack_exports__["CoordinateSystem"] = CoordinateSystem;
 
@@ -497,13 +402,13 @@ class CoordinateSystem {
 */
 
 class Equation {
-	// "ax1 + ax2 + c = d"
+	// "ax1 + bx2 + c = d"
 	constructor(a, b, c, operation, d) {
 		this.a = Number(a) || 0;
 		this.b = Number(b) || 0;
 		this.c = Number(c) || 0;
 		this.operation = operation || '=';
-		this.eq = Number(d) || 0;
+		this.d = Number(d) || 0;
 	}
 
 	draw(ctx) {
@@ -515,6 +420,20 @@ class Equation {
 	// ax + b = c 
 	solve(a, b, c) {
 		return (c - b) / a;
+	}
+
+	draw(graph, ctx, unitX, unitY, transform) {
+		let
+			start = new Point(graph.start.x, graph.start.y + transform.y(this.solve(this.b, this.c, this.d) * unitY)),
+			end = new Point(graph.start.x + this.solve(this.a, this.c, this.d) * unitX, graph.start.y),
+			line = new Line(start, end);
+
+		console.log('eq', this);
+		console.log('eq draw start', start);
+		console.log('eq draw end', end);
+		console.log('solved', this.solve(this.b, this.c, this.d));
+		line.draw(ctx);
+
 	}
 
 	toString() {
@@ -530,7 +449,7 @@ class Equation {
 		else 
 			result += ` - ${Math.abs(this.c)}`;
 
-		result += ` ${this.operation} ${this.eq}`;
+		result += ` ${this.operation} ${this.d}`;
 
 		return result;
 	}
