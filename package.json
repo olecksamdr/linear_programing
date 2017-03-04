@@ -1,0 +1,24 @@
+{
+  "name": "linear_programing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node_modules/.bin/webpack",
+    "watch": "node_modules/.bin/webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olecksamdr/linear_programing.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olecksamdr/linear_programing/issues"
+  },
+  "homepage": "https://github.com/olecksamdr/linear_programing#readme",
+  "dependencies": {
+    "webpack": "^2.2.1"
+  }
+}

@@ -15,7 +15,18 @@
 
 */
 
-class Point {
+// transform y coordinates 
+export class Transform {
+	constructor(canvas) {
+		this.cnv = canvas;
+	}
+
+	y(y) {
+		return this.cnv.height - y;
+	}
+}
+
+export class Point {
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
@@ -30,52 +41,75 @@ class Point {
 	}
 }
 
-class Line {
-	constructor (point1, point2) {
-		this.start = point1;
-		this.end = point2;
-		this.width = point2.x - point1.x;
-		this.height = point2.y - point1.y;
+export class Line {
+	constructor (startPoint, endPoint, ctx) {
+		this.start = startPoint;
+		this.end = endPoint;
+		this.width = endPoint.x - startPoint.x;
+		this.height = endPoint.y - startPoint.y;
+	}
+
+	draw(ctx) {
+		ctx.moveTo(this.start.x, this.start.y);
+		ctx.lineTo(this.end.x, this.end.y);
+		ctx.stroke();
 	}
 }
 
-class Exis extends Line {
+export class Exis {
 	constructor(options) {
-		super(options);
+		this.start = options.start;
+		this.end = options.end;
+		this.line = new Line(options.start, options.end);
 		this.minVal = options.minVal;
 		this.maxVal = options.maxVal;
 		this.type = options.type; // x, y
 
 		// кількість поділок які треба поставити на вісі Х
 		// 1 додаємо щоб врахувати 0
-		this.exisPointsCount = Math.abs(this.minVal) + Math.abs(this.maxVal) + 1;
+		this.exisPointsCount = Math.abs(-this.minVal + Math.abs(this.maxVal)) + 1;
+		console.log('min, max', this.minVal, this.maxVal);
 
 		// відступи між поділками
 		if (this.type == 'x') {
-			this.margin = Math.floor( this.width / this.exisPointsCount);
+			this.unit = Math.floor( this.line.width / this.exisPointsCount);
 		} else {
-			this.margin = Math.floor( this.height / this.exisPointsCount);
+			this.unit = Math.floor( this.line.height / this.exisPointsCount);
+			console.log('line height', this.line.height)
+			console.log('exis unit', this.unit);
 		}
+
+		// console.log('line width', this.line.width);
+		console.log('points count', this.exisPointsCount);
+		// console.log('unit', this.unit);
 
 	}
 
-	draw(ctx) {
+	draw(ctx, angle) {
+		if (!angle) angle = 0;
+
+		ctx.save();
+
+		ctx.translate(this.line.width / 2, this.line.height / 2);
+		ctx.rotate( angle * Math.PI / 180);
+		ctx.translate(-this.line.width / 2, -this.line.height / 2);
+
 		this.drawLine(ctx);
 		this.drawArrow(ctx);
-		this.drawGraduations(ctx)
+		this.drawGraduations(ctx);
+
+		ctx.restore();
 	}
 
 	drawLine(ctx) {
-		ctx.moveTo(this.startPoint.x, this.startPoint.y);
-		ctx.lineTo(this.endPoint.x, this.endPoint.y);
-		ctx.stroke();
+		this.line.draw(ctx);
 	}
 
 	drawArrow(ctx) {
 		if (this.type == 'x') {
 			// x exis
 			new Arrow({
-				startX: this.end.x - 10,
+				startX: this.end.x - 20,
 				startY: this.end.y,
 				width: 20,
 				height: 20,
@@ -84,12 +118,12 @@ class Exis extends Line {
 		} else {
 			// y exis
 			new Arrow({
-				startX: this.zero.x - 10,
-				startY: cnvHeight - this.offset,
+				startX: this.end.x - 10,
+				startY: this.end.y + 10,
 				width: 20,
 				height: 20,
 				arcR: 10,
-				rotate: 90
+				rotate: -90
 			}).draw(ctx);
 		}
 	}
@@ -98,8 +132,10 @@ class Exis extends Line {
 		let textWidth, textHeight;
 
 		if (this.type == 'x') {
-			for(let i = 0; i < this.exisPointsCount - 1; i++) {
-				let margin = i * this.margin;
+			for(let i = 0; i < this.exisPointsCount; i++) {
+				let margin = this.start.x + i * this.unit;
+
+				// console.log(margin);
 
 				ctx.moveTo(margin, this.start.y - 5);
 				ctx.lineTo(margin, this.start.y + 5);
@@ -107,18 +143,23 @@ class Exis extends Line {
 
 				ctx.font = '16px arial';
 
-				textWidth = ctx.measureText(this.minX + i).width,
+				textWidth = ctx.measureText(this.minVal + i).width,
 				textHeight = parseInt(ctx.font);
 
-				ctx.fillText(this.minVal + i, margin,  this.start.y + textHeight + textHeight / 2);
+				// console.log('tetx width', textWidth);
+				// console.log('margin', margin);
+
+				ctx.fillText(this.minVal + i, margin - textWidth / 2,  this.start.y + textHeight + textHeight / 2);
 			}
 		} else {
 				// y exis
-			for(let i = 0; i < this.exisPointsCount - 1; i++) {
-				let margin = i * this.margin;
+			for(let i = 0; i < this.exisPointsCount; i++) {
+				console.log('yExisPointsCount', this.exisPointsCount);
 
-				ctx.moveTo(margin, this.start.x - 5);
-				ctx.lineTo(margin, this.start.x + 5);
+				let margin = this.start.y + i * this.unit;
+
+				ctx.moveTo(this.start.x - 5, margin);
+				ctx.lineTo(this.start.x + 5, margin);
 				ctx.stroke();
 
 				ctx.font = '16px arial';
@@ -126,7 +167,7 @@ class Exis extends Line {
 				textWidth = ctx.measureText(this.minX + i).width,
 				textHeight = parseInt(ctx.font);
 
-				ctx.fillText(this.minVal + i, margin,  this.start.x + textHeight + textHeight / 2);
+				ctx.fillText(this.minVal + i, this.start.x + textWidth / 2, margin + textHeight / 2);
 			}
 		}
 	}
@@ -172,24 +213,55 @@ class Arrow {
 	}
 }
 
-class CoordinateSystem {
-	constructor(option) {
-		this.width = option.width;
-		this.height = option.height;
-		this.minX = option.minX || 0;
-		this.maxX = option.maxX || 0;
-		this.minY = option.minY || 0;
-		this.maxY = option.maxY || 0;
-		this.offset = option.offset || 0;
-		// this.color = option.color || '#000';
+export class CoordinateSystem {
+	constructor(options) {
+		this.width = options.width;
+		this.height = options.height;
+		this.minX = options.minX || 0;
+		this.maxX = options.maxX || 0;
+		this.minY = options.minY || 0;
+		this.maxY = options.maxY || 0;
+		this.offset = options.offset || 0;
+		this.ctx = options.ctx;
+
+		let trf = new Transform(this.ctx.canvas);
+		// this.color = options.color || '#000';
+
+		let yPointCount = Math.abs(this.minY) + Math.abs(this.maxY) + 1;
+		let xPointCount = Math.abs(this.minX) + Math.abs(this.maxX) + 1;
+
+		console.log('xPointCount', xPointCount);
+		console.log('yPointCount', yPointCount);
+		console.log('width', this.width);
+
+		// відступи між поділками
+		// if (this.type == 'x') {
+			this.unitX = Math.floor( (this.width - 2*this.offset) / xPointCount);
+		// } else {
+			this.unitY = Math.floor( (this.height - 2*this.offset) / yPointCount);
+		// }
+
+		console.log('uniyY system', this.unitY);
 
 		//  шукаємо позицію нуля на канвасі
-		let 
-			x = this.offset + (Math.abs(this.minX) + Math.abs(this.maxX)) / 2 * this.marginX,
-			y = this.offset + (Math.abs(this.minY) + Math.abs(this.maxY)) / 2 * this.marginY;
+			let j = 0;
+			for (let i = this.minX; i < 0; i++) {
+				j++
+			}
+
+			let x = this.offset + j * this.unitX;
+
+			j = 0;
+			for (let i = this.minY; i < 0; i++) {
+				j++
+			}
+
+			let y = this.offset + j * this.unitY;
 
 
-		this.zero = new Point(x, y);
+		this.zero = new Point(x, trf.y(y));
+
+		console.log(this.offset, this.unitX, this.unitY, this.zero.x, this.zero.y, this.minX, this.maxX);
 
 		this.xExis = new Exis({
 			start: new Point(this.offset, this.zero.y),
@@ -200,10 +272,10 @@ class CoordinateSystem {
 		});
 
 		this.yExis = new Exis({
-			start: new Point(this.zero.x, this.offset),
-			end: new Point(this.zero.x, this.height - this.offset),
-			minVal: this.minX,
-			maxVal: this.maxX,
+			start: new Point(this.zero.x, trf.y(this.offset)),
+			end: new Point(this.zero.x, trf.y(this.height - this.offset)),
+			minVal: this.minY,
+			maxVal: this.maxY,
 			type: 'y'
 		});
 
@@ -241,7 +313,7 @@ class CoordinateSystem {
 
 	draw(ctx) {
 		this.xExis.draw(ctx);
-		this.yExis.draw(ctx);
+		this.yExis.draw(ctx, 0);
 
 		// let cnvWidth = ctx.canvas.clientWidth;
 		// let cnvHeight = ctx.canvas.clientHeight;
@@ -340,7 +412,7 @@ class CoordinateSystem {
                 |__/                                                      
 */
 
-class Equation {
+export class Equation {
 	// "ax1 + ax2 + c = d"
 	constructor(a, b, c, operation, d) {
 		this.a = Number(a) || 0;

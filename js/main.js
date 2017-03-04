@@ -1,3 +1,5 @@
+import { Equation, Point, CoordinateSystem, Exis } from './geometry.js';
+
 window.addEventListener('load', documentLoaded);
 
 let allEquetions = [];
@@ -41,19 +43,39 @@ function documentLoaded() {
 
 	let canvas = document.getElementById('cnv');
 	console.log(canvas);
+
 	let ctx = canvas.getContext('2d');
 
 	let graph = new CoordinateSystem({
-		minX: -2,
-		maxX: 2,
-		minY: -2,
-		maxY: 4,
-		offset: 50,
+		minX: 0,
+		maxX: 20,
+		minY: 0,
+		maxY: 13,
+		offset: 30,
 		color: '#000',
-		width: canvas.innerWidth,
-		height: canvas.innerHeight
-	});
+		width: canvas.width,
+		height: canvas.height,
+		ctx: ctx
+	}).draw(ctx);
 
-	graph.draw(ctx);
+	// let test = new Exis({
+	// 		start: new Point(10, 10),
+	// 		end: new Point(canvas.width - 10, 10),
+	// 		minVal: -2,
+	// 		maxVal: 2,
+	// 		type: 'x'
+	// 	});
+
+	// new Exis({
+	// 		start: new Point(10, trf.y(10)),
+	// 		end: new Point(10, trf.y(canvas.height - 10)),
+	// 		minVal: -2,
+	// 		maxVal: 2,
+	// 		type: 'y'
+	// 	}).draw(ctx);
+
+	// test.draw(ctx);
+
+	// graph.draw(ctx);
 }
 
