@@ -300,6 +300,9 @@ class CoordinateSystem {
 	constructor(options) {
 
 		this.equations = [];
+		
+		// Многокутник розв'язків 
+		this.poligon = [];
 
 		this.width = options.width;
 		this.height = options.height;
@@ -444,10 +447,13 @@ class Equation {
 		if (this.c != this.d) {
 			// не належить
 
+			console.log("CHECK");
 			// Перевірка чи для (0;0) виконується нерівність
-			if (this.makeOperation(0,0)) {
+			console.log(!this.makeOperation(0,0));
+			if (!this.makeOperation(0,0)) {
 				// Якщо виконується будемо малювати зліва від лінії
 				shadeLen *= -1;
+				console.log("makeOperation");
 			}
 		} else {
 			// (0; 0) належить прямій. Беремо точку (0, 1)
@@ -467,11 +473,22 @@ class Equation {
 		let x = graph.minX - 1;
 		let y = (-C-A*x) / B;
 
-		for (; x <= graph.maxX; x+= step) {
-			y = (-C-A*x) / B;
+		let vector, vectorLen, nextY;
+
+		for (let nextX = ++x; nextX <= graph.maxX; nextX += step) {
+			nextY = (-C-A*nextX) / B;
+
+			vector = new Point(nextX - x, nextY - y);
+			vectorLen = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+
+			vector.x /= vectorLen;
+			vector.y /= vectorLen;
+
+			x = nextX;
+			y = nextY;
 
 			graph.ctx.moveTo(graph.transformX(x), graph.transformY(y));
-			graph.ctx.lineTo(graph.transformX(x + shadeLen), graph.transformY(y + shadeLen));
+			graph.ctx.lineTo(graph.transformX(x-vector.y*shadeLen), graph.transformY(y + vector.x * shadeLen));
 
 		}
 
@@ -504,6 +521,7 @@ class Equation {
 
 		line.draw(graph.ctx);
 
+		// малює штрихи
 		this._shade(graph, graph.minX - 1, graph.maxX, 0.5);
 
 	}
