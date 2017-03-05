@@ -14,9 +14,9 @@ function documentLoaded() {
 
 	let graph = new CoordinateSystem({
 		minX: 0,
-		maxX: 20,
+		maxX: 10,
 		minY: 0,
-		maxY: 13,
+		maxY: 10,
 		offset: 30,
 		color: '#000',
 		width: canvas.width,

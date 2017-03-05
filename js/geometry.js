@@ -50,6 +50,7 @@ export class Line {
 	}
 
 	draw(ctx) {
+		ctx.lineWidth = 2;
 		ctx.moveTo(this.start.x, this.start.y);
 		ctx.lineTo(this.end.x, this.end.y);
 		ctx.stroke();
@@ -76,7 +77,7 @@ export class Exis {
 		} else {
 			this.unit = Math.floor( this.line.height / this.exisPointsCount);
 			console.log('line height', this.line.height)
-			console.log('exis unit', this.unit);
+			console.log(this.type + 'exis unit', this.unit);
 		}
 
 		// console.log('line width', this.line.width);
@@ -292,8 +293,16 @@ export class CoordinateSystem {
 		this.equations.push(eq);
 
 		// this.ctx.lineTo(100, 100);
-		eq.draw(this, this.ctx, this.unitX, this.unitY, this.trf);
+		eq.draw(this);
 		console.log('drawing eq', eq);
+	}
+
+	transformY(y) {
+		return this.zero.y - y * this.unitY;
+	}
+
+	transformX(x) {
+		return this.zero.x + x * this.unitX;
 	}
 
 	draw(ctx) {
@@ -327,9 +336,13 @@ export class Equation {
 		this.d = Number(d) || 0;
 	}
 
-	draw(ctx) {
-		if (a != 0 && b != 0) {
-			let p1 = new Point(solve(this.b, this.c, this.d), solve(this.a, this.c, this.d));
+	makeOperation(x1, x2) {
+		switch (this.operation) {
+			case '=': return this.a * x1 + this.b * x2 + this.c == this.d; break;
+			case '<': return this.a * x1 + this.b * x2 + this.c < this.d; break;
+			case '<=': return this.a * x1 + this.b * x2 + this.c <= this.d; break;
+			case '>': return this.a * x1 + this.b * x2 + this.c > this.d; break;
+			case '>=': return this.a * x1 + this.b * x2 + this.c >= this.d; break;
 		}
 	}
 
@@ -338,17 +351,76 @@ export class Equation {
 		return (c - b) / a;
 	}
 
-	draw(graph, ctx, unitX, unitY, transform) {
-		let
-			start = new Point(graph.start.x, graph.start.y + transform.y(this.solve(this.b, this.c, this.d) * unitY)),
-			end = new Point(graph.start.x + this.solve(this.a, this.c, this.d) * unitX, graph.start.y),
-			line = new Line(start, end);
+	_shade(graph, formX, toX, step) {
+		// довжина штриха
+		let shadeLen = 0.3;
 
-		console.log('eq', this);
-		console.log('eq draw start', start);
-		console.log('eq draw end', end);
-		console.log('solved', this.solve(this.b, this.c, this.d));
-		line.draw(ctx);
+		// перевіряє мадювати штрихи зліва чи справа від лінії
+		//  Спочатку дивимося чи (0;0) не належить прямій
+		if (this.c != this.d) {
+			// не належить
+
+			// Перевірка чи для (0;0) виконується нерівність
+			if (this.makeOperation(0,0)) {
+				// Якщо виконується будемо малювати зліва від лінії
+				shadeLen *= -1;
+			}
+		} else {
+			// (0; 0) належить прямій. Беремо точку (0, 1)
+			// Перевірка чи для (1;0) виконується нерівність
+			if (this.makeOperation(1,0)) {
+				// Якщо виконується будемо малювати зліва від лінії
+				shadeLen *= -1;
+			}
+		}
+
+
+		let 
+			A = this.a,
+			B = this.b,
+			C = this.c - this.d;
+
+		let x = graph.minX - 1;
+		let y = (-C-A*x) / B;
+
+		for (; x <= graph.maxX; x+= step) {
+			y = (-C-A*x) / B;
+
+			graph.ctx.moveTo(graph.transformX(x), graph.transformY(y));
+			graph.ctx.lineTo(graph.transformX(x + shadeLen), graph.transformY(y + shadeLen));
+
+		}
+
+		graph.ctx.stroke();
+	}
+
+	draw(graph) {
+		// Використаємо рівняння канонічне рівняння прямої Ax + By + C = 0
+
+		let 
+			A = this.a,
+			B = this.b,
+			C = this.c - this.d;
+
+		let x = graph.minX - 1;
+		let y = (-C-A*x) / B;
+
+		// console.log('startx , starty', x, y);
+		// console.log('start x graph', graph.start.x);
+		// console.log('start y graph', graph.start.y);
+		// console.log('unit Y', unitY);
+
+		let start = new Point(graph.transformX(x), graph.transformY(y));
+
+		x = graph.maxX;
+		y = (-C-A*x) / B;
+
+		let end = new Point(graph.transformX(x), graph.transformY(y));
+		let line = new Line(start, end);
+
+		line.draw(graph.ctx);
+
+		this._shade(graph, graph.minX - 1, graph.maxX, 0.5);
 
 	}
 
