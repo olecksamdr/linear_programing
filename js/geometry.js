@@ -45,8 +45,8 @@ export class Line {
 	constructor (startPoint, endPoint, ctx) {
 		this.start = startPoint;
 		this.end = endPoint;
-		this.width = endPoint.x - startPoint.x;
-		this.height = endPoint.y - startPoint.y;
+		this.width = Math.abs(endPoint.x - startPoint.x);
+		this.height = Math.abs(endPoint.y - startPoint.y);
 	}
 
 	draw(ctx) {
@@ -73,10 +73,13 @@ export class Exis {
 
 		// відступи між поділками
 		if (this.type == 'x') {
+			console.log('x line width: ', this.line.width);
+
 			this.unit = Math.floor( this.line.width / this.exisPointsCount);
 		} else {
 			this.unit = Math.floor( this.line.height / this.exisPointsCount);
-			// console.log('line height', this.line.height)
+
+			console.log('y line height: ', this.line.height);
 			// console.log(this.type + 'exis unit', this.unit);
 		}
 
@@ -157,7 +160,7 @@ export class Exis {
 			for(let i = 0; i < this.exisPointsCount; i++) {
 				// console.log('yExisPointsCount', this.exisPointsCount);
 
-				let margin = this.start.y + i * this.unit;
+				let margin = this.start.y - i * this.unit;
 
 				ctx.moveTo(this.start.x - 5, margin);
 				ctx.lineTo(this.start.x + 5, margin);
@@ -219,8 +222,6 @@ export class CoordinateSystem {
 
 		this.equations = [];
 		
-		// Многокутник розв'язків 
-		this.poligon = [];
 
 		this.width = options.width;
 		this.height = options.height;
@@ -289,6 +290,11 @@ export class CoordinateSystem {
 		this.start = new Point(this.offset, this.height - this.offset);
 		this.end = new Point(this.width - this.offset, this.offset);
 
+		// Многокутник розв'язків 
+		// this.poligon = [ 
+		// 		new Point(0,0), new Point(0, this.maxY),
+		// 		new Point(this.maxX, this.maxY)];
+
 		// console.log('graph start end', this.start, this.end);
 	}
 
@@ -311,6 +317,11 @@ export class CoordinateSystem {
 	draw(ctx) {
 		this.xExis.draw(ctx);
 		this.yExis.draw(ctx, 0);
+	}
+
+	// намалювати многокунтник розвязків
+	drawPoligon(ctx) {
+
 	}
 
 }
@@ -367,7 +378,7 @@ export class Equation {
 			C = this.c - this.d;
 		step = Math.abs(Math.sin(Math.atan(-B / A)) * step);
 
-		console.log('step', Math.abs(Math.sin(Math.atan(-B / A)) * step));
+		// console.log('step', Math.abs(Math.sin(Math.atan(-B / A)) * step));
 
 		// console.log("Ax + By + C = 0", A + 'x + ' + B + 'y + ' + C);
 
