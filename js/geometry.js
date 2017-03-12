@@ -291,9 +291,12 @@ export class CoordinateSystem {
 		this.end = new Point(this.width - this.offset, this.offset);
 
 		// Многокутник розв'язків 
-		// this.poligon = [ 
-		// 		new Point(0,0), new Point(0, this.maxY),
-		// 		new Point(this.maxX, this.maxY)];
+		this.poligon = [ 
+					0, 0,
+					0, this.maxY + 1,
+					this.maxX + 1, this.maxY + 1,
+					this.maxX + 1, 0
+					];
 
 		// console.log('graph start end', this.start, this.end);
 	}
@@ -317,14 +320,31 @@ export class CoordinateSystem {
 	draw(ctx) {
 		this.xExis.draw(ctx);
 		this.yExis.draw(ctx, 0);
+		this.drawPoligon(ctx);
 	}
 
 	// намалювати многокунтник розвязків
 	drawPoligon(ctx) {
+		let pol = this.poligon;
 
+		ctx.save();
+		ctx.beginPath();
+		ctx.moveTo(this.transformX(pol[0]), this.transformY(pol[1]));
+
+		for (let i = 2; i < pol.length - 1 ; i++){
+			ctx.lineTo(this.transformX(pol[i]), this.transformY(pol[i + 1]));
+		}
+
+		ctx.lineTo(this.transformX(pol[0]), this.transformY(pol[1]));
+		ctx.closePath();
+
+		ctx.fillStyle = 'rgba(0,0,0,0.1)';
+		ctx.fill();
+		ctx.restore();
+
+		}
 	}
 
-}
 
 /*
                                            /$$     /$$                    
