@@ -1,4 +1,4 @@
-import { Transform, Equation, Point, CoordinateSystem, Exis } from './geometry.js';
+// import { Transform, Equation, Point, CoordinateSystem, Exis } from './geometry.js';
 
 window.addEventListener('load', documentLoaded);
 

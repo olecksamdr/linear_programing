@@ -16,7 +16,7 @@
 */
 
 // transform y coordinates 
-export class Transform {
+class Transform {
 	constructor(canvas) {
 		this.cnv = canvas;
 	}
@@ -26,7 +26,7 @@ export class Transform {
 	}
 }
 
-export class Point {
+class Point {
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
@@ -41,7 +41,7 @@ export class Point {
 	}
 }
 
-export class Line {
+class Line {
 	constructor (startPoint, endPoint, ctx) {
 		this.start = startPoint;
 		this.end = endPoint;
@@ -50,14 +50,16 @@ export class Line {
 	}
 
 	draw(ctx) {
+		ctx.beginPath();
 		ctx.lineWidth = 2;
 		ctx.moveTo(this.start.x, this.start.y);
 		ctx.lineTo(this.end.x, this.end.y);
+		ctx.closePath();
 		ctx.stroke();
 	}
 }
 
-export class Exis {
+class Exis {
 	constructor(options) {
 		this.start = options.start;
 		this.end = options.end;
@@ -217,7 +219,7 @@ class Arrow {
 	}
 }
 
-export class CoordinateSystem {
+class CoordinateSystem {
 	constructor(options) {
 
 		this.equations = [];
@@ -359,8 +361,7 @@ export class CoordinateSystem {
                 | $$                                                      
                 |__/                                                      
 */
-
-export class Equation {
+class Equation {
 	// "ax1 + bx2 + c = d"
 	constructor(a, b, c, operation, d) {
 		this.a = Number(a) || 0;
@@ -386,6 +387,7 @@ export class Equation {
 	}
 
 	_shade(graph, formX, toX, step) {
+		graph.ctx.beginPath();
 		// довжина штриха
 		let shadeLen = 0.3;
 		let dirrection = 1;
@@ -450,7 +452,6 @@ export class Equation {
 			// console.log('shade: nextY - y', nextY - y);
 
 			// console.log('shade: vector end', vector);
-
 			graph.ctx.moveTo(graph.transformX(x), graph.transformY(y));
 			graph.ctx.lineTo(graph.transformX(x + vector.x * shadeLen * dirrection), graph.transformY(y + vector.y * shadeLen * dirrection));
 
@@ -462,12 +463,11 @@ export class Equation {
 
 
 			// console.log('-----------------------');
-
 			x = nextX;
 			y = nextY;
 
 		}
-
+		graph.ctx.closePath();
 		graph.ctx.stroke();
 	}
 
