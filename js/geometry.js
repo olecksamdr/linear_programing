@@ -15,6 +15,10 @@
 
 */
 
+function det(row1, row2) {
+	return row1[0] * row2[1] - row2[0] * row1[1];
+}
+
 // transform y coordinates 
 class Transform {
 	constructor(canvas) {
@@ -47,6 +51,22 @@ class Line {
 		this.end = endPoint;
 		this.width = Math.abs(endPoint.x - startPoint.x);
 		this.height = Math.abs(endPoint.y - startPoint.y);
+	}
+
+	intersect (line2) {
+		// Ax + By + C = 0
+		let 
+			// this line
+			A = this.end.y - this.start.y,
+			B = this.start.x - this.end.x,
+			C = this.end.x * this.start.y - this.end.x * this.end.y,
+
+			// line2
+			A2 = line2.end.y - line2.start.y,
+			B2 = line2.start.x - line2.end.x,
+			C2 = line2.end.x * line2.start.y - line2.end.x * line2.end.y;
+
+			
 	}
 
 	draw(ctx) {
@@ -499,7 +519,6 @@ class Equation {
 
 		// малює штрихи
 		this._shade(graph, graph.minX, graph.maxX, 0.2);
-
 	}
 
 	toString() {
