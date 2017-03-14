@@ -345,9 +345,26 @@ class CoordinateSystem {
 	pushEq(eq) {
 		this.equations.push(eq);
 
+		changePoligon();
 		// this.ctx.lineTo(100, 100);
 		eq.draw(this);
 		// console.log('drawing eq', eq);
+	}
+
+	changePoligon() {
+		let intersections = [];
+
+		lastEq = this.equations[this.equations.length - 1];
+
+		let pol = this.poligon;
+		let sideLine;
+
+		for (let i = 0; i < pol.length - 1 ; i += 2){
+			sideLine = new Line(pol[i], pol[i + 1]);
+			intersections.push(lastEq.line.intersect(sideLine));
+		}
+
+		intersections = intersections.map((item) => { if (item !== false) return item; } );
 	}
 
 	transformY(y) {
