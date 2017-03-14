@@ -58,15 +58,34 @@ class Line {
 		let 
 			// this line
 			A = this.end.y - this.start.y,
-			B = this.start.x - this.end.x,
-			C = this.end.x * this.start.y - this.end.x * this.end.y,
+			B = -(this.end.x - this.start.x),
+			C = -(this.end.y - this.start.y) * this.start.x + (this.end.x - this.start.x) * this.start.y,
 
 			// line2
 			A2 = line2.end.y - line2.start.y,
-			B2 = line2.start.x - line2.end.x,
-			C2 = line2.end.x * line2.start.y - line2.end.x * line2.end.y;
+			B2 = -(line2.end.x - line2.start.x),
+			C2 = -(line2.end.y - line2.start.y) * line2.start.x + (line2.end.x - line2.start.x) * line2.start.y;
+      
+            // let str = `${A}x + ${B}y + ${C}`;
+            // console.log(str)
 
-			
+			// якщо всі коефіцієнти пропорційні то прямі співпадають
+			if (A/A2 == B/B2 && B/B2 == C/C2)
+				return Infinity
+			// прямі паралельні
+			else if (A/A2 == B/B2 && B/B2 != C/C2)
+				return false;
+			// прямі пересікаються
+			else {
+				let intersectX = det([-C, B], [-C2, B2]) / det([A, B], [A2, B2]);
+				let intersectY = det([A, -C], [A2, -C2]) / det([A, B], [A2, B2]);
+
+				if (isFinite(intersectX) && isFinite(inersectY)) {
+					return new Point(intersectX, intersectY);
+				} else {
+					return false
+				}
+			}
 	}
 
 	draw(ctx) {
